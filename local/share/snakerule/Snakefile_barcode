@@ -1,0 +1,81 @@
+include: "./conf.sk"
+import glob
+
+def find_sample_log(wildcards):
+    f = glob.glob(CELLECTA_DIRS+"/*/"+wildcards.sample+".log") # FIXME will need to use os.path.join and sooner or later
+    print(CELLECTA_DIRS+"/*/"+wildcards.sample+".log")
+    print(f)
+    if len(f) != 1:
+        raise ValueError('Something strange in the directory structure from cellecta-windows')
+    else:
+        return f[0]
+
+rule logs:
+    input: find_sample_log # TODO function to link human readable sample names
+    output: "{sample}.llog" 
+    shell:
+        """
+            ln -s {input} {output}
+        """
+
+def find_sample_tsv(wildcards):
+    f = glob.glob(CELLECTA_DIRS+"/*/"+wildcards.sample+".tsv") # FIXME will need to use os.path.join and sooner or later
+    print(wildcards)
+    print(f)
+    if len(f) != 1:
+        raise ValueError('TSomething strange in the directory structure from cellecta-windows')
+    else:
+        return f[0]
+
+rule tsv:
+    input: find_sample_tsv
+    output: "{sample}.ttsv"
+    shell:
+        """
+            ln -s {input} {output}
+        """
+
+# TODO plug in SAMPLES
+rule all_ln:
+    input: [expand("{sample}.ttsv", sample=SAMPLES_ORIG), expand("{sample}.llog", sample=SAMPLES_ORIG)]
+
+
+#puzzling without llog and ttsv (?):
+#K_T9
+#['/mnt/trcanmed/snaketree/prj/cellecta_barcode/local/share/data/CRC0327_cetuxi/9/K_T9.tsv']
+#/mnt/trcanmed/snaketree/prj/cellecta_barcode/local/share/data/CRC0327_cetuxi/1/C_T1
+#[]
+#InputFunctionException in line 30 of /mnt/trcanmed/snaketree/prj/cellecta_barcode/dataset/CRC0327_cetuxi/Snakefile:
+#ValueError: TSomething strange in the directory structure from cellecta-windows
+#Wildcards:
+#sample=/mnt/trcanmed/snaketree/prj/cellecta_barcode/local/share/data/CRC0327_cetuxi/1/C_T1
+
+
+rule log:
+    input: expand("{sample}.llog", sample=SAMPLES_ORIG)
+    output: "whole.log"
+    shell:
+        """
+            echo -e "sample\\taligned\\tambiguous\\tunaligned" > {output}
+            for f in {input}; do 
+                    echo -en "${{f%.*}}\\t" ; grep -v "^#" $f | tr -s " " "\\t" | bawk '{{print $2,$3,$4}}';
+            done >> {output}
+        """
+
+#rule plot:
+#    input: "{sample}.ttsv"
+#    output: png="{sample}_barcode_dist.png", bc="{sample}_n.tsv"
+#    params: tool=BIN_DIR+"/barcode_dist"
+#    shell:
+#        """
+#         {params.tool} {input} {output.png} {output.bc}
+#        """
+
+rule all_plot:
+    input: expand("{sample}.ttsv", sample=SAMPLES_ORIG)
+    output: png="barcode_dist.png", bc="n.tsv"
+    params: tool=BIN_DIR+"/barcode_dist", input=lambda wildcars, input: ','.join(input)
+    shell:
+        """
+         {params.tool} {params.input} {output.png} {output.bc}
+        """

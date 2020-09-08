@@ -1,0 +1,19 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception("Can not find the PRJ_ROOT directory")
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+"/local/bin"
+SRC_DIR=PRJ_ROOT+"/local/src"
+
+CELLECTA_DIRS=PRJ_ROOT+"/local/share/data/CRC0327_cetuxi"
+SAMPLES_ORIG=["C_T1","T_10","D_T2","E_T3","F_T4","G_T5","H_T6","I_T7","J_T8","K_T9"]
