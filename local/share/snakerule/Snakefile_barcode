@@ -2,9 +2,8 @@ include: "./conf.sk"
 import glob
 
 def find_sample_log(wildcards):
-    f = glob.glob(CELLECTA_DIRS+"/*/"+wildcards.sample+".log") # FIXME will need to use os.path.join and sooner or later
-    print(CELLECTA_DIRS+"/*/"+wildcards.sample+".log")
-    print(f)
+    i = SAMPLES.index(wildcards.sample)
+    f = glob.glob(CELLECTA_DIRS+"/*/"+SAMPLES_ORIG[i]+".log") # FIXME will need to use os.path.join and sooner or later
     if len(f) != 1:
         raise ValueError('Something strange in the directory structure from cellecta-windows')
     else:
@@ -19,9 +18,8 @@ rule logs:
         """
 
 def find_sample_tsv(wildcards):
-    f = glob.glob(CELLECTA_DIRS+"/*/"+wildcards.sample+".tsv") # FIXME will need to use os.path.join and sooner or later
-    print(wildcards)
-    print(f)
+    i = SAMPLES.index(wildcards.sample)
+    f = glob.glob(CELLECTA_DIRS+"/*/"+SAMPLES_ORIG[i]+".tsv") # FIXME will need to use os.path.join and sooner or later
     if len(f) != 1:
         raise ValueError('TSomething strange in the directory structure from cellecta-windows')
     else:
@@ -37,7 +35,7 @@ rule tsv:
 
 # TODO plug in SAMPLES
 rule all_ln:
-    input: [expand("{sample}.ttsv", sample=SAMPLES_ORIG), expand("{sample}.llog", sample=SAMPLES_ORIG)]
+    input: [expand("{sample}.ttsv", sample=SAMPLES), expand("{sample}.llog", sample=SAMPLES)]
 
 
 #puzzling without llog and ttsv (?):
@@ -52,7 +50,7 @@ rule all_ln:
 
 
 rule log:
-    input: expand("{sample}.llog", sample=SAMPLES_ORIG)
+    input: expand("{sample}.llog", sample=SAMPLES)
     output: "whole.log"
     shell:
         """
@@ -72,7 +70,7 @@ rule log:
 #        """
 
 rule all_plot:
-    input: expand("{sample}.ttsv", sample=SAMPLES_ORIG)
+    input: expand("{sample}.ttsv", sample=SAMPLES)
     output: png="barcode_dist.png", bc="n.tsv"
     params: tool=BIN_DIR+"/barcode_dist", input=lambda wildcars, input: ','.join(input)
     shell:

@@ -17,3 +17,4 @@ SRC_DIR=PRJ_ROOT+"/local/src"
 
 CELLECTA_DIRS=PRJ_ROOT+"/local/share/data/CRC0327_cetuxi"
 SAMPLES_ORIG=["C_T1","T_10","D_T2","E_T3","F_T4","G_T5","H_T6","I_T7","J_T8","K_T9"]
+SAMPLES=["CRC0327_overall","CRC0327_1_T0","CRC0327_1_NT","CRC0327_1_cetuxi", "CRC0327_2_T0","CRC0327_2_NT","CRC0327_2_cetuxi", "CRC0327_3_T0","CRC0327_3_NT","CRC0327_3_cetuxi"]
