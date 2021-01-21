@@ -1,0 +1,20 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception("Can not find the PRJ_ROOT directory")
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+"/local/bin"
+SRC_DIR=PRJ_ROOT+"/local/src"
+
+CELLECTA_DIRS=PRJ_ROOT+"/local/share/data/CRC0322/cellecta"
+SAMPLES_ORIG=["322_A","322_B","322_E","322_F","322_G","322_H","322_I","322_J","322_K","322_L"]
+SAMPLES=["CRC0322_overall","CRC0322_A_T0","CRC0322_A_NT","CRC0322_A_CTX", "CRC0322_B_T0","CRC0322_B_NT","CRC0322_B_CTX", "CRC0322_C_T0","CRC0322_C_NT","CRC0322_C_CTX"]
