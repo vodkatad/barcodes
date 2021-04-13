@@ -84,19 +84,54 @@ ggplot(data=m3, aes(value, ..count.., color=class))+geom_density()+theme_bw()+fa
 ccast <- dcast(data, sequence ~ sample, value.var="count", fill=1)
 rownames(ccast) <- ccast$sequence
 ccast$sequence <- NULL
+
+reps <- c('T0','NT','CTX','overall')
 freqs_cast <- apply(ccast, 2, function(x) x/sum(x))
-averaged_freqs <- sapply(reps, function(x) { d <- freqs_cast[,grepl(x ,colnames(freqs_cast), fixed=T)]; apply(d, 1, function(x) {mean(x)})  })
+averaged_freqs <- sapply(reps, function(x) { d <- freqs_cast[,grepl(x ,colnames(freqs_cast), fixed=T), drop=FALSE]; apply(d, 1, function(x) {mean(x)})  })
 averaged_freqs[rownames(averaged_freqs)=="AGCAGGCGAAGTTA-ACGTTGCAGTGTTGACGTCAACTGACTGCA",] #? not == to Simone what did he do?
 averaged_freqs <- as.data.frame(averaged_freqs)
 nodrift <- averaged_freqs[averaged_freqs$T0 > 0.0005,]
 
-fcs <- data.frame(row.names=rownames(nodrift), ctx_t0 = nodrift$CTX/nodrift$T0, nt_t0=nodrift$NT/nodrift$T0)
+fcs <- data.frame(row.names=rownames(nodrift), ctx_t0 = nodrift$CTX/nodrift$T0, nt_t0=nodrift$NT/nodrift$T0, t0_overall=nodrift$T0/nodrift$overall)
 m <- melt(fcs)
 ggplot(data=m, aes(x=log(value), fill=variable))+geom_density(alpha=0.7)+theme_bw()
 
 
-fcs <- data.frame(row.names=rownames(averaged_freqs), ctx_t0 = averaged_freqs$CTX/averaged_freqs$T0, nt_t0=averaged_freqs$NT/averaged_freqs$T0)
+fcs <- data.frame(row.names=rownames(averaged_freqs), ctx_t0 = averaged_freqs$CTX/averaged_freqs$T0, nt_t0=averaged_freqs$NT/averaged_freqs$T0, t0_overall=averaged_freqs$T0/averaged_freqs$overall )
 m <- melt(fcs)
 ggplot(data=m, aes(x=log(value), fill=variable))+geom_density(alpha=0.7)+theme_bw()
+
+
+fcs_all <- data.frame(row.names=rownames(freqs_cast), ctx_A = freqs_cast[,1]/freqs_cast[,3],nt_A = freqs_cast[,2]/freqs_cast[,3],
+                      ctx_B = freqs_cast[,4]/freqs_cast[,6],nt_B = freqs_cast[,5]/freqs_cast[,6],
+                      ctx_C = freqs_cast[,7]/freqs_cast[,9],nt_C = freqs_cast[,8]/freqs_cast[,9])
+lfcs_all <- log(fcs_all)
+
+lfcs_all[rownames(lfcs_all) %in% rownames(nodrift) & lfcs_all$ctx_A > 1.02 & lfcs_all$ctx_B > 1.02 & lfcs_all$ctx_C > 1.02,]
+
+#
+wanted <- c('AGCAGGCGAAGTTA-ACGTTGCAGTGTTGACGTCAACTGACTGCA','AGTTTCCTGCGTGT-GTGTACACACACACGTCATGACGTGTACGT','AGTTTCCTGCGTGT-GTTGCACATGTGACTGCACAGTCAGTACCA','ATGCCAGAACATAT-CACACAACGTACACGTCATGCACATGTGCA','ATGCCAGAACATAT-CAGTTGTGCAACACGTTGCAACTGTGCATG')
+
+## pseudocounts like Simone and plots
+data$count <- data$count + 1
+ccast <- dcast(data, sequence ~ sample, value.var="count", fill=1)
+rownames(ccast) <- ccast$sequence
+ccast$sequence <- NULL
+freqs_cast <- apply(ccast, 2, function(x) x/sum(x))
+long_fr <- melt(freqs_cast)
+colnames(long_fr) <- c('seq','sample','freq')
+long_fr$sample <- as.character(long_fr$sample)
+long_fr[grepl('overall', long_fr$sample),"sample"] <- "CRC0322_overall_overall"
+long_fr$treat <- sapply(long_fr$sample, function(x) {y<-strsplit(x, '_')[[1]][3]; return(y[1])})
+long_fr$rep <- sapply(long_fr$sample, function(x) {y<-strsplit(x, '_')[[1]][2]; return(y[1])})
+long_fr$treat <- factor(long_fr$treat, levels=c('overall','T0','NT', "CTX"))
+ggplot(data=long_fr, aes(x=log(freq), fill=rep))+geom_density(alpha=0.5)+facet_wrap(~treat)+theme_bw()
+ggplot(data=long_fr, aes(x=log(freq), fill=treat))+geom_density(alpha=0.5)+theme_bw()+facet_wrap(~rep)
+seen_bc <- table(data$sequence)
+keepbc <- names(seen_bc[seen_bc==10])
+head(keepbc)
+long_fr_common <- long_fr[long_fr$seq %in% keepbc,]
+ggplot(data=long_fr_common, aes(x=log(freq), fill=treat))+geom_density(alpha=0.5)+theme_bw()+facet_wrap(~rep)
+ggplot(data=long_fr_common, aes(x=log(freq), fill=rep))+geom_density(alpha=0.5)+facet_wrap(~treat)+theme_bw()
 
 
