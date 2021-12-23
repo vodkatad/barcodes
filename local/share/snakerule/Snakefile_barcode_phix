@@ -1,0 +1,18 @@
+include: "./conf.sk"
+
+rule nreads:
+    output: "n_reads.tsv"
+    params: dir=FQ_DIR
+    shell:
+        """
+            for f in {params.dir}/*fastq.gz; do zcat $f | wc -l | bawk -vN=$f '{print N,$1/4}'; done
+        """
+
+rule align:
+    input: fastq=FQ_DIR+'/{sample}.fastq.gz' 
+    params: index=PRJ_ROOT+'/local/share/data/phix/phiX', cores=CORES
+    output: "{sample}.bam"
+    shell:
+        """
+            bwa mem -t {params.cores} {params.index} {input} | samtools view -Shb -o {output}
+        """
