@@ -1,5 +1,5 @@
 include: "./conf.sk"
-
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/cellecta_barcode/local/share/data/nextseq_larger_dec2021$ bcl2fastq --no-lane-splitting --sample-sheet 211221_NS500140_0455_AHKJF3BGXK/SampleSheet.csv -o . -R 211221_NS500140_0455_AHKJF3BGXK/ > log 2> err
 rule nreads:
     output: "n_reads.tsv"
     params: dir=FQ_DIR

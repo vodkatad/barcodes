@@ -114,7 +114,7 @@ wanted <- c('AGCAGGCGAAGTTA-ACGTTGCAGTGTTGACGTCAACTGACTGCA','AGTTTCCTGCGTGT-GTGT
 
 ## pseudocounts like Simone and plots
 data$count <- data$count + 1
-ccast <- dcast(data, sequence ~ sample, value.var="count", fill=1)
+ccast <- dcast(data, sequence ~ sample, value.var="count", fill=0)
 rownames(ccast) <- ccast$sequence
 ccast$sequence <- NULL
 freqs_cast <- apply(ccast, 2, function(x) x/sum(x))

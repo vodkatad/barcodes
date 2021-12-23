@@ -299,6 +299,14 @@ jsd <- function(pair,data) {
 
 jsdiv <- apply(pairs, 1, jsd, dc)
 jm <- matrix(jsdiv, nrow=length(allc))
+
+
+colnames(jm) <- unique(allc)
+rownames(jm) <- unique(allc)
+corrplot(jm, is.corr=F)
+summary(jm[upper.tri(jm)])
+#Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#0.00802 0.02718 0.04682 0.05186 0.07226 0.12890 
 # entropy without selected atleast
 
 #mah
