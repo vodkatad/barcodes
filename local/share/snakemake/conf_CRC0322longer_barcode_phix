@@ -18,4 +18,7 @@ SRC_DIR=PRJ_ROOT+"/local/src"
 FQ_DIR=PRJ_ROOT+"/local/share/data/nextseq_larger_dec2021"
 #SAMPLES_ORIG=["322_A","322_B","322_E","322_F","322_G","322_H","322_I","322_J","322_K","322_L"]
 #SAMPLES=["CRC0322_overall","CRC0322_A_T0","CRC0322_A_NT","CRC0322_A_CTX", "CRC0322_B_T0","CRC0322_B_NT","CRC0322_B_CTX", "CRC0322_C_T0","CRC0322_C_NT","CRC0322_C_CTX"]
+
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/cellecta_barcode/local/share/data/nextseq_larger_dec2021$ ls org_xeno_livermet_327_* | sed 's/\.fastq\.gz/"/' | sed 's/^/"/' | tr "\n" ","
+SAMPLES=["org_xeno_livermet_327_A_T1_ctx_S1_R1_001","org_xeno_livermet_327_B_T2_ctx_S2_R1_001","org_xeno_livermet_327_C_T3_ctx_S3_R1_001","org_xeno_livermet_327_D_T4_ctx_S4_R1_001","org_xeno_livermet_327_E_T5_ctx_S5_R1_001","org_xeno_livermet_327_F_T6_ctx_S6_R1_001","org_xeno_livermet_327_G_T7_ctx_S7_R1_001","org_xeno_livermet_327_H_T8_ctx_S8_R1_001","org_xeno_livermet_327_I_T9_ctx_S9_R1_001","org_xeno_livermet_327_J_T10_ctx_S10_R1_001","org_xeno_livermet_327_K_T11_ctx_S11_R1_001","org_xeno_livermet_327_L_T12_ctx_S12_R1_001","org_xeno_livermet_327_M_T13_ctx_S13_R1_001","org_xeno_livermet_327_N_T14_ctx_S14_R1_001","org_xeno_livermet_327_O_T15_ctx_S15_R1_001","org_xeno_livermet_327_P_T16_ctx_S16_R1_001","org_xeno_livermet_327_Q_T17_ctx_S17_R1_001","org_xeno_livermet_327_R_T18_ctx_S18_R1_001","org_xeno_livermet_327_S_T19_ctx_S19_R1_001","org_xeno_livermet_327_T_T20_ctx_S20_R1_001","org_xeno_livermet_327_U_T21_ctx_S21_R1_001","org_xeno_livermet_327_V_T22_ctx_S22_R1_001","Undetermined_S0_R1_001"]
 CORES=8
