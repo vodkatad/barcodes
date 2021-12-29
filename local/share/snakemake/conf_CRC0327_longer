@@ -1,0 +1,43 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception("Can not find the PRJ_ROOT directory")
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+"/local/bin"
+SRC_DIR=PRJ_ROOT+"/local/src"
+
+CELLECTA_DIRS=PRJ_ROOT+"/local/share/data/nextseq_larger_dec2021/cellecta"
+SAMPLES_ORIG=[str(x) for x in range(1,23)]
+SAMPLES=[
+'CRC0327_overall',
+'CRC0327_A_preT0',
+'CRC0327_B_preT0',
+'CRC0327_C_preT0',
+'CRC0327_A_T0',
+'CRC0327_B_T0',
+'CRC0327_C_T0',
+'CRC0327_A_NT0',
+'CRC0327_B_NT0',
+'CRC0327_C_NT0',
+'CRC0327_A_CTX0',
+'CRC0327_B_CTX0',
+'CRC0327_C_CTX0',
+'CRC0327_A_NT1',
+'CRC0327_B_NT1',
+'CRC0327_C_NT1',
+'CRC0327_A_CTX1',
+'CRC0327_B_CTX1',
+'CRC0327_C_CTX1',
+'CRC0327_A_CTX2',
+'CRC0327_B_CTX2',
+'CRC0327_C_CTX2'
+]

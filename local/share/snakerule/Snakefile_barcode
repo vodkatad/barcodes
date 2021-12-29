@@ -77,3 +77,11 @@ rule all_plot:
         """
          {params.tool} {params.input} {output.png} {output.bc}
         """
+
+# rule enplot
+
+
+# rule jensen shannon
+
+
+# rule follow Simone
