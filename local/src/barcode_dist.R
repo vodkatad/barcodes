@@ -5,8 +5,9 @@ args <- commandArgs(trailingOnly = T)
 input <- args[1]
 outplot <- args[2]
 outnum <- args[3]
+outimage <- args[4]
 
-save.image('pippo.Rdata')
+save.image(outimage)
 samples <- unlist(strsplit(input, ','))
 samples_names <- sapply(samples, function(x) {y <- basename(x)})
 samples_names <- gsub(pattern = "\\.ttsv$", "", samples)
@@ -45,7 +46,7 @@ ggsave(outplot)
 write.table(numbers, file=outnum, sep="\t", quote=FALSE)
 
 
-save.image('pippo.Rdata')
+save.image(outimage)
 #d <- read.table(infile, sep="\t", header=FALSE, comment.char='')
 #names(d) <- c('id','sequence','count')
 #infobarcodes <- function(data) {

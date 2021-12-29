@@ -71,17 +71,25 @@ rule log:
 
 rule all_plot:
     input: expand("{sample}.ttsv", sample=SAMPLES)
-    output: png="barcode_dist.png", bc="n.tsv"
+    output: png="barcode_dist.png", bc="n.tsv", Rimage='counts.Rdata'
     params: tool=BIN_DIR+"/barcode_dist", input=lambda wildcars, input: ','.join(input)
     shell:
         """
-         {params.tool} {params.input} {output.png} {output.bc}
+         {params.tool} {params.input} {output.png} {output.bc} {output.Rimage}
         """
 
-# rule enplot
+rule upset:
+    input: Rimage="counts.Rdata"
+    output: upset='upset.pdf', widecounts='wide_counts.tsv.gz'
+    script: SRC_DIR+'/upset_barcodes.R'
 
+rule jensen_shannon:
+    input: Rimage="counts.Rdata"
+    output: jsplot='jensen_shannon.pdf', freqplot='common_freqs.pdf', countplot='common_counts.pdf'
+    params: nsamples=len(SAMPLES)
+    script: SRC_DIR+'/jensen_shannon.R'
 
-# rule jensen shannon
-
-
-# rule follow Simone
+rule follow_simone:
+    input: Rimage="counts.Rdata"
+    output: scatter='scatter.pdf', histo='histo.pdf'#, countplot='common_counts.pdf'
+    script: SRC_DIR+'/simone.R'
