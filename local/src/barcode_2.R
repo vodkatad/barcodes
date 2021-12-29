@@ -112,7 +112,7 @@ lfcs_all[rownames(lfcs_all) %in% rownames(nodrift) & lfcs_all$ctx_A > 1.02 & lfc
 #
 wanted <- c('AGCAGGCGAAGTTA-ACGTTGCAGTGTTGACGTCAACTGACTGCA','AGTTTCCTGCGTGT-GTGTACACACACACGTCATGACGTGTACGT','AGTTTCCTGCGTGT-GTTGCACATGTGACTGCACAGTCAGTACCA','ATGCCAGAACATAT-CACACAACGTACACGTCATGCACATGTGCA','ATGCCAGAACATAT-CAGTTGTGCAACACGTTGCAACTGTGCATG')
 
-## pseudocounts like Simone and plots
+## pseudocounts like Simone and plots (wrong probably)
 data$count <- data$count + 1
 ccast <- dcast(data, sequence ~ sample, value.var="count", fill=0)
 rownames(ccast) <- ccast$sequence
