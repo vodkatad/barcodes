@@ -1,0 +1,27 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception("Can not find the PRJ_ROOT directory")
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+"/local/bin"
+SRC_DIR=PRJ_ROOT+"/local/src"
+
+#PHIX=PRJ_ROOT+'/local/share/data/phix/phiX'
+PHIX='/mnt/trcanmed/snaketree/prj/cellecta_barcode/local/share/data/phix/phiX'
+FQ_DIR=PRJ_ROOT+"/local/share/data/bcl_feb2022_vivo/barcode_nextseq"
+#SAMPLES_ORIG=["322_A","322_B","322_E","322_F","322_G","322_H","322_I","322_J","322_K","322_L"]
+
+#SAMPLES=["basale_1","basale_2","basale_3","vitro_1", "vitro_2","vitro_3","topo_1", "topo_3","topo_4","topo_5"]
+
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/cellecta_barcode/local/share/data/nextseq_larger_dec2021$ ls org_xeno_livermet_327_* | sed 's/\.fastq\.gz/"/' | sed 's/^/"/' | tr "\n" ","
+SAMPLES=["org_xeno_livermet_322_O_T1_ctx_S1_R1_001","org_xeno_livermet_322_P_T2_ctx_S2_R1_001","org_xeno_livermet_322_Q_T3_ctx_S3_R1_001","org_xeno_livermet_322_R_T4_ctx_S4_R1_001","org_xeno_livermet_322_S_T5_ctx_S5_R1_001","org_xeno_livermet_322_T_T6_ctx_S6_R1_001","xeno_livermet_322_U_T7_ctx_S7_R1_001","xeno_livermet_322_V_T8_ctx_S8_R1_001","xeno_livermet_322_W_T9_ctx_S9_R1_001","xeno_livermet_322_Y_T10_ctx_S10_R1_001", "Undetermined_S0_R1_001"]
+CORES=8

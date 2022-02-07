@@ -1,5 +1,4 @@
 include: "./conf.sk"
-#egrassi@godot:/mnt/trcanmed/snaketree/prj/cellecta_barcode/local/share/data/nextseq_larger_dec2021$ bcl2fastq --no-lane-splitting --sample-sheet 211221_NS500140_0455_AHKJF3BGXK/SampleSheet.csv -o . -R 211221_NS500140_0455_AHKJF3BGXK/ > log 2> err
 rule nreads:
     output: "n_reads.tsv"
     params: dir=FQ_DIR
@@ -10,7 +9,7 @@ rule nreads:
 
 rule align:
     input: fastq=FQ_DIR+'/{sample}.fastq.gz' 
-    params: index=PRJ_ROOT+'/local/share/data/phix/phiX', cores=CORES
+    params: index=PHIX, cores=CORES
     output: "{sample}.bam"
     shell:
         """
@@ -36,11 +35,11 @@ rule all_phix_align:
 rule join_info:
     input: phix="all_phix.tsv", reads="n_reads.tsv"
     output: "info.tsv"
-    params: pre="org_xeno"
+    params: pre="(org_xeno|xeno_livermet)"
     shell:
         """
             join -t$'\\t' <(sed 's/\.flagstat//1' {input.phix} | sort -k1,1) \\
-            <(sed 's/\.fastq\.gz//1' {input.reads} | sed -E 's/^.+{params.pre}/{params.pre}/1' | sed -E 's/^.+Undetermined/Undetermined/1'  | sort -k1,1) > {output}
+            <(sed 's/\.fastq\.gz//1' {input.reads} | sed -E 's/^.+\/{params.pre}/\\1/1' | sed -E 's/^.+Undetermined/Undetermined/1'  | sort -k1,1) > {output}
         """
 
 rule clean:
