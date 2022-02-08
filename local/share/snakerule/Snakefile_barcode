@@ -5,7 +5,7 @@ def find_sample_log(wildcards):
     i = SAMPLES.index(wildcards.sample)
     f = glob.glob(CELLECTA_DIRS+"/*/"+SAMPLES_ORIG[i]+".log") # FIXME will need to use os.path.join and sooner or later
     if len(f) != 1:
-        raise ValueError('Something strange in the directory structure from cellecta-windows')
+        raise ValueError('Something strange in the directory structure from cellecta-windows ' + str(f))
     else:
         return f[0]
 
@@ -21,7 +21,7 @@ def find_sample_tsv(wildcards):
     i = SAMPLES.index(wildcards.sample)
     f = glob.glob(CELLECTA_DIRS+"/*/"+SAMPLES_ORIG[i]+".tsv") # FIXME will need to use os.path.join and sooner or later
     if len(f) != 1:
-        raise ValueError('TSomething strange in the directory structure from cellecta-windows')
+        raise ValueError('TSomething strange in the directory structure from cellecta-windows ' + str(f))
     else:
         return f[0]
 
@@ -56,7 +56,7 @@ rule log:
         """
             echo -e "sample\\taligned\\tambiguous\\tunaligned" > {output}
             for f in {input}; do 
-                    echo -en "${{f%.*}}\\t" ; grep -v "^#" $f | tr -s " " "\\t" | bawk '{{print $2,$3,$4}}';
+                    echo -en "${{f%.*}}\\t" ; grep -v "^#" $f | tr -d '\\r' | tr -s " " "\\t" | bawk '{{print $2,$3,$4,$2/($2+$4)}}';
             done >> {output}
         """
 

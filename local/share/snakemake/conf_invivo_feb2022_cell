@@ -1,0 +1,20 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception("Can not find the PRJ_ROOT directory")
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+"/local/bin"
+SRC_DIR=PRJ_ROOT+"/local/src"
+
+CELLECTA_DIRS=PRJ_ROOT+"/local/share/data/bcl_feb2022_vivo/cellecta"
+SAMPLES_ORIG=[str(x) for x in range(1,11)]
+SAMPLES=["basale_1","basale_2","basale_3","vitro_1", "vitro_2","vitro_3","topo_1", "topo_3","topo_4","topo_5"]
