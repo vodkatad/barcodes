@@ -69,7 +69,6 @@ ggplot(freqs, aes(x=reorder(id,-count),log10(count),fill=atleast)) + geom_bar(st
 #  all <- c(all, palette)
 #}
 
-
 x <- 'variable'
 y <- 'id'
 size <- 'value'

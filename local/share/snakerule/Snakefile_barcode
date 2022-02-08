@@ -90,6 +90,13 @@ rule jensen_shannon:
     params: nsamples=len(SAMPLES)
     script: SRC_DIR+'/jensen_shannon.R'
 
+rule jensen_shannon_pc:
+    input: Rimage="counts.Rdata"
+    output: jsplot='jensen_shannon_pc.pdf'
+    params: nsamples=len(SAMPLES)
+    script: SRC_DIR+'/jensen_shannon_pc.R'
+
+
 rule follow_simone:
     input: Rimage="counts.Rdata"
     output: scatter='scatter.pdf', histo='histo.pdf'#, countplot='common_counts.pdf'
