@@ -48,7 +48,8 @@ rule all_ln:
 #Wildcards:
 #sample=/mnt/trcanmed/snaketree/prj/cellecta_barcode/local/share/data/CRC0327_cetuxi/1/C_T1
 
-
+#egrassi@godot:/mnt/trcanmed/snaketree/prj/cellecta_barcode/dataset/CRC0327_longer$ bawk  '{print $2+$4}' whole.log 
+# TODO add
 rule log:
     input: expand("{sample}.llog", sample=SAMPLES)
     output: "whole.log"
