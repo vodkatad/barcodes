@@ -155,3 +155,111 @@ data$solotopi <- ifelse(data$id %in% solotopi, 'yes', 'no')
 table(data$solotopi)
 
 ggplot(data=data, aes(y=freqs.basale_1, x=solotopi))+geom_boxplot(varwidth = TRUE)+scale_y_log10()
+
+#########
+
+library(reshape)
+library(ggplot2)
+
+load('/mnt/cold1/snaketree/prj/cellecta_barcode/dataset/invivo_feb2022/counts.Rdata')
+
+
+dd <- cast(data, sequence ~ sample, value="count", fill=0)
+rownames(dd) <- dd$sequence
+dd$sequence <- NULL
+all_counts_wide <- dd
+all_counts_wide <- all_counts_wide + 1
+
+freqs_cast <- as.data.frame(apply(all_counts_wide, 2, function(x) x/sum(x)))
+
+
+get_ave <- function(name, data) {
+  sub <- data[,grepl(name, colnames(data), fixed=TRUE)]
+  return(apply(sub, 1, mean))
+}
+
+ns <- c('basale', 'topo', 'vitro')
+
+freq_ave <- as.data.frame(sapply(ns, get_ave, freqs_cast))
+
+freq_ave_s <- freq_ave[freq_ave$basale > 0.0005,]
+
+logfc_1 <- data.frame(logfc=log(freq_ave_s$topo/freq_ave_s$basale), fill=rep('vivo', nrow(freq_ave_s)))
+logfc_2 <- data.frame(logfc=log(freq_ave_s$vitro/freq_ave_s$basale), fill=rep('vitro', nrow(freq_ave_s)))
+
+
+ggplot(data=rbind(logfc_1, logfc_2), aes(x=logfc, fill=fill))+
+  geom_histogram(aes(y=-1*..count..), bins=15, color='black', data=logfc_1)+
+  geom_histogram(aes(y=..count..), bins=15, color='black', data=logfc_2)+
+  theme_bw()+scale_fill_manual(values=c('grey','red'))+coord_flip()+ylab('n barcodes')
+
+logfc_1 <- data.frame(logfc=log(freq_ave$topo/freq_ave$basale), fill=rep('vivo', nrow(freq_ave)))
+logfc_2 <- data.frame(logfc=log(freq_ave$vitro/freq_ave$basale), fill=rep('vitro', nrow(freq_ave)))
+
+
+ggplot(data=rbind(logfc_1, logfc_2), aes(x=logfc, fill=fill))+
+  geom_histogram(aes(y=-1*..count..), bins=15, color='black', data=logfc_1)+
+  geom_histogram(aes(y=..count..), bins=15, color='black', data=logfc_2)+
+  theme_bw()+scale_fill_manual(values=c('grey','red'))+coord_flip()
+
+
+ref <- "basale_1"
+logfc <- function(col, reference, data) {
+  return(log(data[,col]/data[, reference]))
+}
+
+topos <- grep('topo_', colnames(freqs_cast), fixed=TRUE)
+
+singlelfc <- as.data.frame(sapply(topos, logfc, ref, freqs_cast))
+colnames(singlelfc) <- colnames(freqs_cast)[topos]
+rownames(singlelfc) <- rownames(freqs_cast)
+singlelfc[, ref] <- freqs_cast[, ref]
+
+ss <- singlelfc[singlelfc[,ref] > 0.0005,]
+
+cor.test(ss$topo_1, ss$basale_1)
+ss$id <- rownames(ss)
+longdf <- melt(ss, measure.vars = colnames(freqs_cast)[topos])
+
+ggplot(data=longdf, aes(x=basale_1,y=value))+geom_point()+facet_wrap(~variable) + theme_bw()
+
+
+
+topos <- grep('vitro_', colnames(freqs_cast), fixed=TRUE)
+
+singlelfc <- as.data.frame(sapply(topos, logfc, ref, freqs_cast))
+colnames(singlelfc) <- colnames(freqs_cast)[topos]
+rownames(singlelfc) <- rownames(freqs_cast)
+singlelfc[, ref] <- freqs_cast[, ref]
+
+ss2 <- singlelfc[singlelfc[,ref] > 0.0005,]
+
+ss2$id <- rownames(ss2)
+cor.test(ss2$vitro_1, ss2$basale_1)
+longdf2 <- melt(ss2, measure.vars = colnames(freqs_cast)[topos])
+
+ggplot(data=longdf2, aes(x=basale_1,y=value))+geom_point()+facet_wrap(~variable) + theme_bw()
+
+
+cc <- cor(freqs_cast)
+library(corrplot)
+corrplot(cc)
+
+
+all(ss2$id==ss$id)
+sss <- cbind(ss, ss2)
+
+
+cor.test(sss$topo_1, sss$vitro_1)
+
+cor.test(sss$topo_1, sss$topo_3)
+
+cor.test(sss$vitro_1, sss$vitro_2)
+
+compare(sss$topo_1, sss$topo_3, FALSE, 'topo_1', 'topo_3')
+compare(sss$topo_1, sss$vitro_1, FALSE, 'topo_1', 'vitro_1')
+compare(sss$vitro_2, sss$vitro_1, FALSE, 'vitro_2', 'vitro_1')
+
+
+
+
