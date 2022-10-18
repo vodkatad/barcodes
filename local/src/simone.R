@@ -37,11 +37,11 @@ for (i in seq(1, length(all_rep)-1)) {
   w <- all_rep[i]
   subset <- long_fr[long_fr$rep == w,]
   subset <- subset[order(subset$seq),]
-  subset_y1 <- subset[subset$treat == 'CTX1','freq']
-  subset_y2 <- subset[subset$treat == 'NT1','freq']
+  subset_y1 <- subset[subset$treat == 'CTX','freq'] # CTX for CRC0322, cetuxi for CRC0327
+  subset_y2 <- subset[subset$treat == 'NT','freq']
   subset_x <- subset[subset$treat=='T0','freq']
-  ssubset_y1 <- subset[subset$treat == 'CTX1','seq']
-  ssubset_y2 <- subset[subset$treat == 'NT1','seq']
+  ssubset_y1 <- subset[subset$treat == 'CTX','seq']
+  ssubset_y2 <- subset[subset$treat == 'NT','seq']
   ssubset_x <- subset[subset$treat=='T0','seq']
   stopifnot(all(ssubset_y1 == ssubset_y2))
   stopifnot(all(ssubset_x == ssubset_y2))
@@ -52,13 +52,22 @@ for (i in seq(1, length(all_rep)-1)) {
     pdata_all <- rbind(pdata_all, pdata)
   }
 }
-ggplot(data=pdata_all, aes(x=x, y=y, color=fill))+geom_point()+facet_wrap(~rep)+scale_color_manual(values=c('red','grey'))+theme_bw()+xlab('f0')+ylab('ft')+ggtitle('w1 vs t0')
-ggsave(scatter_f)
 
 
 # keep only > 0.001 and produce histograms
 #thr <- 0.00025
 thr <- 0.0005
+
+ggplot(data=pdata_all, aes(x=x, y=y, color=fill))+geom_point()+facet_wrap(~rep)+
+  scale_color_manual(values=c('red','grey'))+theme_bw()+xlab('Initial frequency')+
+  ylab('Final Frequency')+ggtitle('CRC0327')+geom_vline(xintercept=thr)
+ggsave(scatter_f)
+
+ggplot(data=pdata_all, aes(x=x, y=y, color=fill))+geom_point()+
+  scale_color_manual(values=c('red','grey'))+theme_bw()+xlab('Initial frequency')+
+  ylab('Final Frequency')+ggtitle('CRC0327')+geom_vline(xintercept=thr)
+
+
 
 pdata_all_1 <- NULL
 pdata_all_2 <- NULL
@@ -66,12 +75,12 @@ for (i in seq(1, length(all_rep)-1)) {
   w <- all_rep[i]
   subset <- long_fr[long_fr$rep == w,]
   subset0 <- subset[(subset$treat =='T0' & subset$freq > thr),]
-  subset1 <- subset[(subset$treat == "CTX1" & subset$seq %in% subset0$seq),]
-  subset2 <- subset[(subset$treat == "NT1" & subset$seq %in% subset0$seq),]
+  subset1 <- subset[(subset$treat == "CTX" & subset$seq %in% subset0$seq),]
+  subset2 <- subset[(subset$treat == "NT" & subset$seq %in% subset0$seq),]
   subset <- rbind(subset1, subset2, subset0)
   subset <- subset[order(subset$seq),]
-  subset_y1 <- subset[subset$treat == 'CTX1','freq']
-  subset_y2 <- subset[subset$treat == 'NT1','freq']
+  subset_y1 <- subset[subset$treat == 'CTX','freq']
+  subset_y2 <- subset[subset$treat == 'NT','freq']
   subset_x <- subset[subset$treat=='T0','freq']
   seqs <- as.character(subset[subset$treat=='T0','seq'])
   logfr_1 <- log2(subset_y1/subset_x)

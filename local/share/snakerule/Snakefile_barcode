@@ -99,5 +99,5 @@ rule jensen_shannon_pc:
 
 rule follow_simone:
     input: Rimage="counts.Rdata"
-    output: scatter='scatter.pdf', histo='histo.pdf'#, countplot='common_counts.pdf'
+    output: scatter='scatter.png', histo='histo.png'#, countplot='common_counts.pdf'
     script: SRC_DIR+'/simone.R'
