@@ -1,5 +1,6 @@
 include: "./conf.sk"
 rule nreads:
+    input: FQ_DIR+'/YOUCANPROCEED.txt'
     output: "n_reads.tsv"
     params: dir=FQ_DIR
     shell:
@@ -8,12 +9,12 @@ rule nreads:
         """
 
 rule align:
-    input: fastq=FQ_DIR+'/{sample}.fastq.gz' 
+    input: fastq=FQ_DIR+'/{sample}.fastq.gz', check=FQ_DIR+'/YOUCANPROCEED.txt'
     params: index=PHIX, cores=CORES
     output: "{sample}.bam"
     shell:
         """
-            bwa mem -t {params.cores} {params.index} {input} | samtools view -Shb -o {output}
+            bwa mem -t {params.cores} {params.index} {input.fastq} | samtools view -Shb -o {output}
         """
 
 rule flagstat:
