@@ -9,6 +9,8 @@ histo_f <- snakemake@output[['histo']]
 image <- snakemake@input[['Rimage']]
 load(image)
 
+load('/mnt/trcanmed/snaketree/prj/cellecta_barcode/dataset/CRC0322_cetuxi/counts.Rdata')
+
 
 all_counts_wide <- cast(data, sequence ~ sample, value="count", fill=0)
 rownames(all_counts_wide) <- all_counts_wide$sequence
@@ -60,13 +62,8 @@ thr <- 0.0005
 
 ggplot(data=pdata_all, aes(x=x, y=y, color=fill))+geom_point()+facet_wrap(~rep)+
   scale_color_manual(values=c('red','grey'))+theme_bw()+xlab('Initial frequency')+
-  ylab('Final Frequency')+ggtitle('CRC0322')+geom_vline(xintercept=thr)
+  ylab('Final Frequency')+ggtitle('')+geom_vline(xintercept=thr)
 ggsave(scatter_f)
-
-ggplot(data=pdata_all, aes(x=x, y=y, color=fill))+geom_point()+
-  scale_color_manual(values=c('red','grey'))+theme_bw()+xlab('Initial frequency')+
-  ylab('Final Frequency')+ggtitle('CRC0327')+geom_vline(xintercept=thr)+ylim(0, 01)+xlim(0, 0.01)
-
 
 
 pdata_all_1 <- NULL
@@ -101,6 +98,9 @@ ggplot(data=rbind(pdata_all_1,pdata_all_2), aes(x=logfr, fill=fill))+
   geom_histogram(aes(y=..count..), bins=15, color='black', data=pdata_all_2)+
   facet_wrap(~rep)+
   theme_bw()+scale_fill_manual(values=c('red','grey'))+coord_flip()
+
+ks.test(pdata_all_1$logfr, pdata_all_2$logfr)
+
 
 ggsave(histo_f)
 
