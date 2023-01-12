@@ -100,6 +100,7 @@ ggplot(data=rbind(pdata_all_1,pdata_all_2), aes(x=logfr, fill=fill))+
   theme_bw()+scale_fill_manual(values=c('red','grey'))+coord_flip()
 
 ks.test(pdata_all_1$logfr, pdata_all_2$logfr)
+qqplot(pdata_all_1$logfr, pdata_all_2$logfr)
 
 
 ggsave(histo_f)
@@ -107,8 +108,8 @@ ggsave(histo_f)
 # then look for enriched barcodes in all replicates
 # logFC > 1 in all replicates
 
-selected_1 <- pdata_all_1[pdata_all_1$logfr > 1,]
-selected_2 <- pdata_all_2[pdata_all_2$logfr > 1,]
+selected_1 <- pdata_all_1[pdata_all_1$logfr > 1.02,]
+selected_2 <- pdata_all_2[pdata_all_2$logfr > 1.02,]
 
 sel <- as.data.frame(table(selected_1$seq))
 sel[sel$Freq > 1,]
@@ -120,6 +121,17 @@ seq2 <- sel2[sel2$Freq > 1,'Var1']
 
 intersect(seq1, seq2)
 
+x <- c('AGCAGGCGAAGTTA-ACGTTGCAGTGTTGACGTCAACTGACTGCA',
+'AGTTTCCTGCGTGT-GTGTACACACACACGTCATGACGTGTACGT',
+'AGTTTCCTGCGTGT-GTGTACACACACACGTCATGACGTGTACGT',
+"AGTTTCCTGCGTGT-GTTGCACATGTGACTGCACAGTCAGTACCA",
+"ATGCCAGAACATAT-CACACAACGTACACGTCATGCACATGTGCA",
+'ATGCCAGAACATAT-CAGTTGTGCAACACGTTGCAACTGTGCATG')
+
+selected_1[selected_1$seq %in% x,]
+
+#1.5
+
 pp <- long_fr[long_fr$seq=="ATGCCAGAACATAT-CAACCAACGTCACATGCAGTTGTGGTACTG",]
 pp$treat <- as.character(pp$treat)
 pp[pp$rep=="overall",'treat'] <- 'overall0'
@@ -127,3 +139,15 @@ pp$time <- substr(pp$treat, nchar(pp$treat), nchar(pp$treat))
 
 pp$treat <- factor(pp$treat, levels=c('overall', 'preT0','T0','NT0','CTX0','NT1','CTX1','CTX2'))
 ggplot(data=pp, aes(y=freq, x=treat, color=rep, group=rep))+geom_line()+geom_point()+theme_bw()
+
+
+
+sel <- as.data.frame(table(selected_1$seq))
+sel[sel$Freq > 1,]
+seq1 <- sel[sel$Freq > 2, 'Var1']
+
+sel2 <- as.data.frame(table(selected_2$seq))
+sel2[sel2$Freq > 1, ]
+seq2 <- sel2[sel2$Freq > 2,'Var1']
+
+intersect(seq1, seq2)

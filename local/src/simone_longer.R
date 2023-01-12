@@ -94,6 +94,8 @@ ggplot(data=rbind(pdata_all_1,pdata_all_2), aes(x=logfr, fill=fill))+
   theme_bw()+scale_fill_manual(values=c('red','grey'))+coord_flip()
 
 ks.test(pdata_all_1$logfr, pdata_all_2$logfr)
+qqplot(pdata_all_1$logfr, pdata_all_2$logfr)
+
 
 selected_1 <- pdata_all_1[pdata_all_1$logfr > 1,]
 selected_2 <- pdata_all_2[pdata_all_2$logfr > 1,]
@@ -101,6 +103,13 @@ selected_2 <- pdata_all_2[pdata_all_2$logfr > 1,]
 sel <- as.data.frame(table(selected_1$seq))
 sel[sel$Freq > 1,]
 seq1 <- sel[sel$Freq > 2, 'Var1']
+
+
+sel2 <- as.data.frame(table(selected_2$seq))
+sel2[sel2$Freq > 1,]
+seq2 <- sel2[sel2$Freq > 2, 'Var1']
+
+
 
 pdata_all_3 <- NULL
 pdata_all_4 <- NULL
@@ -130,8 +139,8 @@ for (i in seq(1, length(all_rep)-1)) {
 }
 
 ggplot(data=rbind(pdata_all_3,pdata_all_4), aes(x=logfr, fill=fill))+
-  geom_histogram(aes(y=-1*..count..), bins=15, color='black', data=pdata_all_1)+
-  geom_histogram(aes(y=..count..), bins=15, color='black', data=pdata_all_2)+
+  geom_histogram(aes(y=-1*..count..), bins=15, color='black', data=pdata_all_3)+
+  geom_histogram(aes(y=..count..), bins=15, color='black', data=pdata_all_4)+
   facet_wrap(~rep)+
   theme_bw()+scale_fill_manual(values=c('red','darkred'))+coord_flip()
 
@@ -143,10 +152,11 @@ sel <- as.data.frame(table(selected_4$seq))
 seq4 <- sel[sel$Freq > 2, 'Var1']
 
 dd <- long_fr[long_fr$seq %in% as.character(seq4) & long_fr$rep != "overall",]
-ddnt <- dd[dd$treat %in% c('preT0','T0', 'NT0', 'NT1')]
+ddnt <- dd[dd$treat %in% c('preT0','T0', 'NT0', 'NT1'),]
 ddnt$treat <- factor(ddnt$treat, levels=c('preT0','T0', 'NT0', 'NT1'))
-ddc <- dd[dd$treat %in% c('preT0','T0', 'CTX0', 'CTX1', 'CTX2')]
+ddc <- dd[dd$treat %in% c('preT0','T0', 'CTX0', 'CTX1', 'CTX2'),]
 ddc$treat <- factor(ddc$treat, levels=c('preT0','T0', 'CTX0', 'CTX1', 'CTX2'))
+
 ggplot(data=ddnt, aes(x=treat, y=freq, color=seq)) +
   geom_point()+geom_line(aes(group=seq))+ 
   facet_wrap(~rep)+theme_bw()+theme(legend.position="none")
@@ -154,3 +164,145 @@ ggplot(data=ddnt, aes(x=treat, y=freq, color=seq)) +
 ggplot(data=ddc, aes(x=treat, y=freq, color=seq)) +
   geom_point()+geom_line(aes(group=seq))+ 
   facet_wrap(~rep)+theme_bw()+theme(legend.position="none")
+
+sss <- c('AGCAGGCGAAGTTA-ACGTTGCAGTGTTGACGTCAACTGACTGCA',
+'AGTTTCCTGCGTGT-GTGTACACACACACGTCATGACGTGTACGT',
+'AGTTTCCTGCGTGT-GTTGCACATGTGACTGCACAGTCAGTACCA',
+'ATGCCAGAACATAT-CACACAACGTACACGTCATGCACATGTGCA',
+'ATGCCAGAACATAT-CAGTTGTGCAACACGTTGCAACTGTGCAT')
+
+
+dd <- long_fr[long_fr$seq %in% as.character(seq1) & long_fr$rep != "overall",]
+ddnt <- dd[dd$treat %in% c('preT0','T0', 'NT0', 'NT1'),]
+ddnt$treat <- factor(ddnt$treat, levels=c('preT0','T0', 'NT0', 'NT1'))
+ddc <- dd[dd$treat %in% c('preT0','T0', 'CTX0', 'CTX1', 'CTX2'),]
+ddc$treat <- factor(ddc$treat, levels=c('preT0','T0', 'CTX0', 'CTX1', 'CTX2'))
+
+ggplot(data=ddnt, aes(x=treat, y=freq, color=seq)) +
+  geom_point()+geom_line(aes(group=seq))+ 
+  facet_wrap(~rep)+theme_bw()+theme(legend.position="none")
+
+ggplot(data=ddc, aes(x=treat, y=freq, color=seq)) +
+  geom_point()+geom_line(aes(group=seq))+ 
+  facet_wrap(~rep)+theme_bw()+theme(legend.position="none")
+
+
+sel <- as.data.frame(table(selected_2$seq))
+seqb <- sel[sel$Freq > 2, 'Var1']
+
+
+
+pdata_all_3 <- NULL
+pdata_all_4 <- NULL
+for (i in seq(1, length(all_rep)-1)) {
+  w <- all_rep[i]
+  subset <- long_fr[long_fr$rep == w,]
+  subset0 <- subset[(subset$treat =='T0' & subset$freq > thr),]
+  subset1 <- subset[(subset$treat == "CTX2" & subset$seq %in% subset0$seq),]
+  subset2 <- subset[(subset$treat == "NT1" & subset$seq %in% subset0$seq),]
+  subset <- rbind(subset1, subset2, subset0)
+  subset <- subset[order(subset$seq),]
+  subset_y1 <- subset[subset$treat == 'CTX2','freq']
+  subset_y2 <- subset[subset$treat == 'NT1','freq']
+  subset_x <- subset[subset$treat=='T0','freq']
+  seqs <- as.character(subset[subset$treat=='T0','seq'])
+  logfr_1 <- log2(subset_y1/subset_x)
+  logfr_2 <- log2(subset_y2/subset_x)
+  pdata3 <- data.frame(seq=seqs, logfr=logfr_1, fill=rep('CTX2', length(logfr_1)),rep=rep(w, length(logfr_1)), stringsAsFactors = FALSE)
+  pdata4 <- data.frame(seq=seqs, logfr=logfr_2, fill=rep('NT1', length(logfr_1)), rep=rep(w, length(logfr_2)), stringsAsFactors = FALSE)
+  if (i == 1) {
+    pdata_all_3 <- pdata3
+    pdata_all_4 <- pdata4
+  } else {
+    pdata_all_3 <- rbind(pdata_all_3, pdata3)
+    pdata_all_4 <- rbind(pdata_all_4, pdata4)
+  }
+}
+
+
+
+ggplot(data=rbind(pdata_all_3,pdata_all_4), aes(x=logfr, fill=fill))+
+  geom_histogram(aes(y=-1*..count..), bins=15, color='black', data=pdata_all_3)+
+  geom_histogram(aes(y=..count..), bins=15, color='black', data=pdata_all_4)+
+  facet_wrap(~rep)+
+  theme_bw()+scale_fill_manual(values=c('darkred','lightgrey'))+coord_flip()
+
+ks.test(pdata_all_3$logfr, pdata_all_4$logfr)
+qqplot(pdata_all_3$logfr, pdata_all_4$logfr)
+
+### bubble
+rev <- long_fr[long_fr$seq %in% unique(pdata_all_4[pdata_all_4$logfr > 0.5849, 'seq']), ]
+x <- 'sample'
+y <- 'seq'
+size <- 'freq'
+fill <- 'sample'
+barcode <- 'seq'
+rev$sample <- factor(rev$sample, levels=c('CRC0322_overall', 
+                                              'CRC0322_A_preT0','CRC0322_B_preT0','CRC0322_C_preT0',
+                                              'CRC0322_A_T0','CRC0322_B_T0','CRC0322_C_T0',
+                                              'CRC0322_A_NT0','CRC0322_B_NT0', 'CRC0322_C_NT0','CRC0322_A_CTX0','CRC0322_B_CTX0', 'CRC0322_C_CTX0',
+                                              'CRC0322_A_NT1','CRC0322_B_NT1', 'CRC0322_C_NT1','CRC0322_A_CTX1','CRC0322_B_CTX1', 'CRC0322_C_CTX1',
+                                              'CRC0322_A_CTX2','CRC0322_B_CTX2', 'CRC0322_C_CTX2'))                                              
+
+
+o <- rev[rev$sample=="CRC0322_overall",]
+o <- o[order(o$freq),]
+rev$seq <- factor(rev$seq, levels=o$seq)
+
+ggplot(rev, aes_string(x, y)) + geom_exec(geom_point, 
+                                          data = rev, size = size, fill = barcode, 
+                                          color=barcode, alpha=0.7) + scale_size(range=c(-1,7))+ 
+  theme_minimal() + theme(axis.title.x = ggplot2::element_blank(), 
+                          axis.title.y = ggplot2::element_blank(), axis.text.y=element_blank(),
+                          axis.ticks.y=element_blank(), legend.position="none", panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+
+s1 <- pdata_all_1[pdata_all_1$logfr > 0.5849, 'seq']
+sel <- as.data.frame(table(s1))
+s <- sel[sel$Freq > 2, 's1']
+s2 <- unique(pdata_all_2[pdata_all_2$logfr > 0.5849, 'seq'])
+s3 <- setdiff(s,s2)
+rev <- long_fr[long_fr$seq %in% s3, ]
+x <- 'sample'
+y <- 'seq'
+size <- 'freq'
+fill <- 'sample'
+barcode <- 'seq'
+rev$sample <- factor(rev$sample, levels=c('CRC0322_overall', 
+                                          'CRC0322_A_preT0','CRC0322_B_preT0','CRC0322_C_preT0',
+                                          'CRC0322_A_T0','CRC0322_B_T0','CRC0322_C_T0',
+                                          'CRC0322_A_NT0','CRC0322_B_NT0', 'CRC0322_C_NT0','CRC0322_A_CTX0','CRC0322_B_CTX0', 'CRC0322_C_CTX0',
+                                          'CRC0322_A_NT1','CRC0322_B_NT1', 'CRC0322_C_NT1','CRC0322_A_CTX1','CRC0322_B_CTX1', 'CRC0322_C_CTX1',
+                                          'CRC0322_A_CTX2','CRC0322_B_CTX2', 'CRC0322_C_CTX2'))                                              
+
+
+o <- rev[rev$sample=="CRC0322_overall",]
+o <- o[order(o$freq),]
+rev$seq <- factor(rev$seq, levels=o$seq)
+
+ggplot(rev, aes_string(x, y)) + geom_exec(geom_point, 
+                                          data = rev, size = size, fill = barcode, 
+                                          color=barcode, alpha=0.7) + scale_size(range=c(-1,7))+ 
+  theme_minimal() + theme(axis.title.x = ggplot2::element_blank(), 
+                          axis.title.y = ggplot2::element_blank(), axis.text.y=element_blank(),
+                          axis.ticks.y=element_blank(), legend.position="none", panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
+
+
+
+selected_1 <- pdata_all_1[pdata_all_1$logfr > 1.2,]
+selected_2 <- pdata_all_2[pdata_all_2$logfr > 1.2,]
+
+sel <- as.data.frame(table(selected_1$seq))
+sel[sel$Freq > 1,]
+seq1 <- sel[sel$Freq > 2, 'Var1']
+
+
+sel2 <- as.data.frame(table(selected_2$seq))
+sel2[sel2$Freq > 1,]
+seq2 <- sel2[sel2$Freq > 2, 'Var1']
+
+
