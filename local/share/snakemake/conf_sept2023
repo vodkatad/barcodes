@@ -1,0 +1,39 @@
+import os
+import string
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception("Can not find the PRJ_ROOT directory")
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+"/local/bin"
+SRC_DIR=PRJ_ROOT+"/local/src"
+
+CELLECTA_DIRS=PRJ_ROOT+"/local/share/data/sept2023/cellecta"
+SAMPLES_ORIG=list(string.ascii_lowercase)[0:18]
+SAMPLES=["bulk_1","bulk_2","bulk_3", "linea_S", "linea_M", "linea_L", "Basale_0X002", "Basale_0X006", "Basale_0X007", "Phy_0X001", "Phy_0X008", "Phy_0X011", "Cetux_0x003", "Cetux_0x004", "Cetux_0x005", "Cetux_0x009", "Cetux_0x0012", "Cetux_0x0013"]
+#Bulk 1
+#Bulk 2
+#Bulk 3
+#Linea S
+#Linea M
+#Linea L
+#Basale 0X002
+#Basale 0X006
+#Basale 0X007
+#	Phy 0X001
+#Phy 0X008
+#Phy 0X011
+#Cetux 0X003
+#Cetux 0X004
+#Cetux 0X005
+#Cetux 0X009
+#Cetux 0X0012
+#Cetux 0X0013
