@@ -291,11 +291,25 @@ logfc <- function(col, ref, data) {
   log2(data[,col] / data[,ref])
 }
 
-cet_lfc <- sapply(colnames(sel)[grepl('Cetux', colnames(sel))], logfc, 'basale', sel)
-phy_lfc <- sapply(colnames(sel)[grepl('Phy', colnames(sel))], logfc, 'basale', sel)
+cet_lfc <- as.data.frame(sapply(colnames(sel)[grepl('Cetux', colnames(sel))], logfc, 'basale', sel))
+phy_lfc <- as.data.frame(sapply(colnames(sel)[grepl('Phy', colnames(sel))], logfc, 'basale', sel))
 rownames(cet_lfc) <- row.names(sel)
 rownames(phy_lfc) <- row.names(sel)
+### plot lfc
+plot_dist <- function(df) {
+  df$id <- row.names(df)
+  pd <- melt(df)
+  print(ggplot(data=pd, aes(x=value, color=variable))+geom_density()+theme_bw()+
+    theme(text=element_text(size=15)))
+}
 
+plot_dist(cet_lfc)
+plot_dist(phy_lfc)
+
+cetux <- c("Cetux_0x0012", "Cetux_0x0013", "Cetux_0x003",  "Cetux_0x004")
+cet_lfc <- cet_lfc[, cetux]
+#phy <- 'Phy_0X008'
+#phy_lfc <- phy_lfc[, phy, drop=F]
 nc <- apply(cet_lfc, 1, function(x) {sum(x > 1)})
 np <- apply(phy_lfc, 1, function(x) {sum(x > 1)})
 
@@ -303,25 +317,38 @@ table(nc)
 table(np)
 
 
-intersect(names(nc)[nc==5],names(np)[np==3])
+upc <- setdiff(names(nc)[nc==4],names(np)[np==3])
 
-upc <- names(nc)[nc==5]
+#upc <- names(nc)[nc==4]
 
-dfc <- sel[rownames(sel) %in% upc,]
+basale <- colnames(sel)[grepl('Basale', colnames(sel))]
+#phy <- colnames(sel)[grepl('Phy', colnames(sel))]
+allc <- colnames(sel)[grepl('Cetux', colnames(sel))]
+dfc <- as.data.frame(sel[rownames(sel) %in% upc, c(cetux, basale, phy)])
 dfc$id <- rownames(dfc)
 m <- melt(dfc)
-m$s <- factor(m$s, levels = s)
+m$s <- factor(m$variable, levels = c(basale, phy, cetux))
 
 ggplot(data=m, aes(x=s, y=value, colour=id, group=id))+geom_point()+geom_line()+theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), text=element_text(size=15))
 
-upc <- names(np)[np==3]
+##
 
-dfc <- sel[rownames(sel) %in% upc,]
+upc_s <- setdiff(names(nc)[nc==4],names(np)[np>=1])
+
+dfc <- as.data.frame(sel[rownames(sel) %in% upc_s, c(cetux, basale, phy)])
+dfc$id <- rownames(dfc)
+m <- melt(dfc)
+m$s <- factor(m$variable, levels = c(basale, phy, cetux))
+
+ggplot(data=m, aes(x=s, y=value, colour=id, group=id))+geom_point()+geom_line()+theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), text=element_text(size=15))
+
+dfc <- sel[rownames(sel) %in% upc_s,]
 dfc$id <- rownames(dfc)
 m <- melt(dfc)
 m$s <- factor(m$s, levels = s)
 
-ggplot(data=m, aes(x=s, y=value, group=id))+geom_point()+geom_line()+theme_bw()+
+ggplot(data=m, aes(x=s, y=value, group=id, colour=id))+geom_point()+geom_line()+theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), text=element_text(size=15))+ylim(0, 0.045)
 
