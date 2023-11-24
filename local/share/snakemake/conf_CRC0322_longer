@@ -1,0 +1,43 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception("Can not find the PRJ_ROOT directory")
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+"/local/bin"
+SRC_DIR=PRJ_ROOT+"/local/src"
+
+CELLECTA_DIRS=PRJ_ROOT+"/local/share/data/barcode_120622/cellecta"
+SAMPLES_ORIG=['A', 'B', 'C' , 'D', 'E' , 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'Y', 'T', 'V', 'W']
+SAMPLES=[
+'CRC0322_overall',
+'CRC0322_A_preT0',
+'CRC0322_B_preT0',
+'CRC0322_C_preT0',
+'CRC0322_A_T0',
+'CRC0322_B_T0',
+'CRC0322_C_T0',
+'CRC0322_A_NT0',
+'CRC0322_B_NT0',
+'CRC0322_C_NT0',
+'CRC0322_A_CTX0',
+'CRC0322_B_CTX0',
+'CRC0322_C_CTX0',
+'CRC0322_A_NT1',
+'CRC0322_B_NT1',
+'CRC0322_C_NT1',
+'CRC0322_A_CTX1',
+'CRC0322_B_CTX1',
+'CRC0322_C_CTX1',
+'CRC0322_A_CTX2',
+'CRC0322_B_CTX2',
+'CRC0322_C_CTX2'
+]

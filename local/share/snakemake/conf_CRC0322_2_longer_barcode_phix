@@ -1,0 +1,23 @@
+import os
+def find_prj_root(path=os.getcwd()):
+    if os.path.isfile(os.path.join(path,".PRJ_ROOT")):
+        return path
+    else:
+        if path:
+            return find_prj_root(os.path.dirname(path))
+        else:
+            raise Exception("Can not find the PRJ_ROOT directory")
+
+PRJ_ROOT=find_prj_root()
+BIOINFO_ROOT = os.getenv('BIOINFO_ROOT')
+SNAKE_ROOT=os.getenv('SNAKE_ROOT')
+
+BIN_DIR=PRJ_ROOT+"/local/bin"
+SRC_DIR=PRJ_ROOT+"/local/src"
+
+FQ_DIR=PRJ_ROOT+"/local/share/data/barcode_120622"
+
+#ode/local/share/data/barcode_120622$ ls org_xeno_livermet_322_*fastq.gz | sed 's/\.fastq\.gz/"/' | sed 's/^/"/' | tr "\n" ","
+SAMPLES=["org_xeno_livermet_322_A_T1_cetuximab_S1_R1_001","org_xeno_livermet_322_B_T2_cetuximab_S2_R1_001","org_xeno_livermet_322_C_T3_cetuximab_S3_R1_001","org_xeno_livermet_322_D_T4_cetuximab_S4_R1_001","org_xeno_livermet_322_E_T5_cetuximab_S5_R1_001","org_xeno_livermet_322_F_T6_cetuximab_S6_R1_001","org_xeno_livermet_322_G_T7_cetuximab_S7_R1_001","org_xeno_livermet_322_H_T8_cetuximab_S8_R1_001","org_xeno_livermet_322_I_T9_cetuximab_S9_R1_001","org_xeno_livermet_322_J_T10_cetuximab_S10_R1_001","org_xeno_livermet_322_K_T11_cetuximab_S11_R1_001","org_xeno_livermet_322_L_T12_cetuximab_S12_R1_001","org_xeno_livermet_322_M_T13_cetuximab_S13_R1_001","org_xeno_livermet_322_N_T14_cetuximab_S14_R1_001","org_xeno_livermet_322_O_T15_cetuximab_S15_R1_001","org_xeno_livermet_322_P_T16_cetuximab_S16_R1_001","org_xeno_livermet_322_Q_T17_cetuximab_S17_R1_001","org_xeno_livermet_322_R_T18_cetuximab_S18_R1_001","org_xeno_livermet_322_T_T20_cetuximab_S20_R1_001","org_xeno_livermet_322_V_T21_cetuximab_S21_R1_001","org_xeno_livermet_322_W_T22_cetuximab_S22_R1_001","org_xeno_livermet_322_Y_T19_cetuximab_S19_R1_001", "Undetermined_S0_R1_001"]
+CORES=8
+PHIX='/mnt/trcanmed/snaketree/prj/cellecta_barcode/local/share/data/phix/phiX'

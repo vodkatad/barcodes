@@ -1,14 +1,3 @@
-library(reshape)
-library(ggplot2)
-
-scatter_f <- snakemake@output[['scatter']]
-histo_f <- snakemake@output[['histo']]
-#counts_f <- snakemake@output[['countplot']]
-#n_samples <- as.numeric(snakemake@params[['nsamples']])
-
-image <- snakemake@input[['Rimage']]
-load(image)
-
 load('/mnt/trcanmed/snaketree/prj/cellecta_barcode/dataset/CRC0322_cetuxi/counts.Rdata')
 
 
@@ -22,8 +11,26 @@ all_counts_wide <- all_counts_wide + 1
 #rownames(ccast) <- ccast$sequence
 #ccast$sequence <- NULL
 freqs_cast <- apply(all_counts_wide, 2, function(x) x/sum(x))
-long_fr <- melt(freqs_cast)
-colnames(long_fr) <- c('seq','sample','freq')
+
+
+# select 500 group of barcodes at random
+total_bc <- nrow(freqs_cast)
+group <- floor(total_bc/500)
+new_order <- sample(1:total_bc)
+n_groups <- floor(total_bc/group)
+new_freqs <- data.frame(matrix(rep(0, ncol(freqs_cast)*n_groups), ncol=ncol(freqs_cast)))
+colnames(new_freqs) <- colnames(freqs_cast)
+j <- 1
+for (i in seq(1, n_groups)) {
+  for (k in seq(1, group)) {
+    new_freqs[i,] <- new_freqs[i,] + freqs_cast[new_order[j],]
+    j <- j + 1
+  }
+}
+rownames(new_freqs) <- paste0('mbc_', seq(1, nrow(new_freqs)))
+
+long_fr <- melt(as.matrix(new_freqs))
+colnames(long_fr) <- c('seq', 'sample','freq')
 long_fr$sample <- as.character(long_fr$sample)
 
 #ref <- 'T0'
@@ -62,10 +69,10 @@ thr <- 0.0005
 
 ggplot(data=pdata_all, aes(x=x, y=y, color=fill))+geom_point()+facet_wrap(~rep)+
   scale_color_manual(values=c('red','grey'))+theme_bw()+xlab('Initial frequency')+
-  ylab('Final Frequency')+ggtitle('')+geom_vline(xintercept=thr)
-ggsave(scatter_f)
+  ylab('Final Frequency')+ggtitle('meta')+geom_vline(xintercept=thr)
 
 
+thr <- 0
 pdata_all_1 <- NULL
 pdata_all_2 <- NULL
 for (i in seq(1, length(all_rep)-1)) {
@@ -98,56 +105,3 @@ ggplot(data=rbind(pdata_all_1,pdata_all_2), aes(x=logfr, fill=fill))+
   geom_histogram(aes(y=..count..), bins=15, color='black', data=pdata_all_2)+
   facet_wrap(~rep)+
   theme_bw()+scale_fill_manual(values=c('red','grey'))+coord_flip()
-
-ks.test(pdata_all_1$logfr, pdata_all_2$logfr)
-qqplot(pdata_all_1$logfr, pdata_all_2$logfr)
-
-
-ggsave(histo_f)
-
-# then look for enriched barcodes in all replicates
-# logFC > 1 in all replicates
-
-selected_1 <- pdata_all_1[pdata_all_1$logfr > 1.02,]
-selected_2 <- pdata_all_2[pdata_all_2$logfr > 1.02,]
-
-sel <- as.data.frame(table(selected_1$seq))
-sel[sel$Freq > 1,]
-seq1 <- sel[sel$Freq > 1, 'Var1']
-
-sel2 <- as.data.frame(table(selected_2$seq))
-sel2[sel2$Freq > 1, ]
-seq2 <- sel2[sel2$Freq > 1,'Var1']
-
-intersect(seq1, seq2)
-
-x <- c('AGCAGGCGAAGTTA-ACGTTGCAGTGTTGACGTCAACTGACTGCA',
-'AGTTTCCTGCGTGT-GTGTACACACACACGTCATGACGTGTACGT',
-'AGTTTCCTGCGTGT-GTGTACACACACACGTCATGACGTGTACGT',
-"AGTTTCCTGCGTGT-GTTGCACATGTGACTGCACAGTCAGTACCA",
-"ATGCCAGAACATAT-CACACAACGTACACGTCATGCACATGTGCA",
-'ATGCCAGAACATAT-CAGTTGTGCAACACGTTGCAACTGTGCATG')
-
-selected_1[selected_1$seq %in% x,]
-
-#1.5
-
-pp <- long_fr[long_fr$seq=="ATGCCAGAACATAT-CAACCAACGTCACATGCAGTTGTGGTACTG",]
-pp$treat <- as.character(pp$treat)
-pp[pp$rep=="overall",'treat'] <- 'overall0'
-pp$time <- substr(pp$treat, nchar(pp$treat), nchar(pp$treat))
-
-pp$treat <- factor(pp$treat, levels=c('overall', 'preT0','T0','NT0','CTX0','NT1','CTX1','CTX2'))
-ggplot(data=pp, aes(y=freq, x=treat, color=rep, group=rep))+geom_line()+geom_point()+theme_bw()
-
-
-
-sel <- as.data.frame(table(selected_1$seq))
-sel[sel$Freq > 1,]
-seq1 <- sel[sel$Freq > 2, 'Var1']
-
-sel2 <- as.data.frame(table(selected_2$seq))
-sel2[sel2$Freq > 1, ]
-seq2 <- sel2[sel2$Freq > 2,'Var1']
-
-intersect(seq1, seq2)
