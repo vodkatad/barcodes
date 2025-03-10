@@ -11,7 +11,7 @@ load(image)
 all_counts_wide <- cast(data, sequence ~ sample, value="count", fill=0)
 rownames(all_counts_wide) <- all_counts_wide$sequence
 all_counts_wide$sequence <- NULL
-write.table(all_counts_wide, file=wide_f, sep="\t", quote=F)
+write.table(all_counts_wide, file=gzfile(wide_f), sep="\t", quote=F)
 barcode_appeareance <- lapply(unique(data$sample), function(x) {data[data$sample==x,'sequence']})
 names(barcode_appeareance)  <- unique(data$sample)
 pdf(upsetplot_f)
