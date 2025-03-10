@@ -277,29 +277,33 @@ ggplot(rev, aes_string(x, y)) + geom_exec(geom_point,
                                                                                                                       axis.title.y = ggplot2::element_blank(), axis.text.y=element_blank(),
                                                                                                                       axis.ticks.y=element_blank(), legend.position="none", panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
-## average bulk e basali
+##################### average bulk e basali
+#cast <- as.data.frame(freqs_cast) # all pc
+
+#cast$Basale_0X002 <- NULL
 avgBasali <- rowMeans(cast[, grepl('Basale', colnames(cast))])
 
 avgBulk <- rowMeans(cast[, grepl('bulk', colnames(cast))])
 
 keep <- row.names(cast)[avgBulk > 0.0005]
+#keep <- row.names(cast)[avgBulk > 0.00005]
 
 sel <- cast[rownames(cast) %in% keep,]
 sel$basale <- rowMeans(sel[, grepl('Basale', colnames(sel))])
-
+sel$bulk <- rowMeans(sel[, grepl('bulk', colnames(sel))])
 logfc <- function(col, ref, data) {
   log2(data[,col] / data[,ref])
 }
 
-cet_lfc <- as.data.frame(sapply(colnames(sel)[grepl('Cetux', colnames(sel))], logfc, 'basale', sel))
-phy_lfc <- as.data.frame(sapply(colnames(sel)[grepl('Phy', colnames(sel))], logfc, 'basale', sel))
+cet_lfc <- as.data.frame(sapply(colnames(sel)[grepl('Cetux', colnames(sel))], logfc, 'bulk', sel))
+phy_lfc <- as.data.frame(sapply(colnames(sel)[grepl('Phy', colnames(sel))], logfc, 'bulk', sel))
 rownames(cet_lfc) <- row.names(sel)
 rownames(phy_lfc) <- row.names(sel)
 ### plot lfc
 plot_dist <- function(df) {
   df$id <- row.names(df)
   pd <- melt(df)
-  print(ggplot(data=pd, aes(x=value, color=variable))+geom_density()+theme_bw()+
+  print(ggplot(data=pd, aes(x=value, color=variable))+geom_density(aes(y= ..count.. ))+theme_bw()+
     theme(text=element_text(size=15)))
 }
 
@@ -307,9 +311,11 @@ plot_dist(cet_lfc)
 plot_dist(phy_lfc)
 
 cetux <- c("Cetux_0x0012", "Cetux_0x0013", "Cetux_0x003",  "Cetux_0x004")
+cet_lfc_b <- cet_lfc
+
 cet_lfc <- cet_lfc[, cetux]
-#phy <- 'Phy_0X008'
-#phy_lfc <- phy_lfc[, phy, drop=F]
+phy <- 'Phy_0X008'
+phy_lfc <- phy_lfc[, phy, drop=F]
 nc <- apply(cet_lfc, 1, function(x) {sum(x > 1)})
 np <- apply(phy_lfc, 1, function(x) {sum(x > 1)})
 
@@ -317,10 +323,47 @@ table(nc)
 table(np)
 
 
-upc <- setdiff(names(nc)[nc==4],names(np)[np==3])
+upc <- setdiff(names(nc)[nc==4],names(np)[np==1])
 
-#upc <- names(nc)[nc==4]
+dfc <- as.data.frame(sel[rownames(sel) %in% upc,c("bulk_1","bulk_2","bulk_3", "linea_S", "linea_M", "linea_L", "Basale_0X002", "Basale_0X006", "Basale_0X007", "Phy_0X001", "Phy_0X008", "Phy_0X011", "Cetux_0x003", "Cetux_0x004", "Cetux_0x005", "Cetux_0x009", "Cetux_0x0012", "Cetux_0x0013")])
 
+dfc$id <- rownames(dfc)
+m <- melt(dfc)
+
+m$s <- factor(m$variable, levels=c("bulk_1","bulk_2","bulk_3", "linea_S", "linea_M", "linea_L", "Basale_0X002", "Basale_0X006", "Basale_0X007", "Phy_0X001", "Phy_0X008", "Phy_0X011", "Cetux_0x003", "Cetux_0x004", "Cetux_0x005", "Cetux_0x009", "Cetux_0x0012", "Cetux_0x0013"))
+ggplot(data=m, aes(x=s, y=value, colour=id, group=id))+geom_point()+geom_line()+theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), text=element_text(size=15))
+
+##
+
+### do we see same n. of up if we randomize?
+set.seed(42)
+n <- c()
+for (i in seq(1, 1000)) {
+  rsel <- sel
+  cets <- colnames(sel)[grepl('Cetux', colnames(sel))]
+  for (c in cets) {
+    rsel[,c] <- sample(sel[,c], size=nrow(sel))
+  }
+  
+  cet_lfc <- as.data.frame(sapply(colnames(rsel)[grepl('Cetux', colnames(rsel))], logfc, 'bulk', rsel))
+  phy_lfc <- as.data.frame(sapply(colnames(rsel)[grepl('Phy', colnames(rsel))], logfc, 'bulk', rsel))
+  rownames(cet_lfc) <- row.names(sel)
+  rownames(phy_lfc) <- row.names(sel)
+  
+  colnames(cet_lfc) <- paste0('rand_', colnames(cet_lfc))
+  
+  cetux <- paste0("rand_", c("Cetux_0x0012", "Cetux_0x0013", "Cetux_0x003",  "Cetux_0x004"))
+  cet_lfc <- cet_lfc[, cetux]
+  phy <- 'Phy_0X008'
+  phy_lfc <- phy_lfc[, phy, drop=F]
+  nc <- apply(cet_lfc, 1, function(x) {sum(x > 1)})
+  np <- apply(phy_lfc, 1, function(x) {sum(x > 1)})
+  
+  upc <- setdiff(names(nc)[nc==4],names(np)[np==1])
+  n <- c(n, length(upc))
+}
+table(n)
 basale <- colnames(sel)[grepl('Basale', colnames(sel))]
 #phy <- colnames(sel)[grepl('Phy', colnames(sel))]
 allc <- colnames(sel)[grepl('Cetux', colnames(sel))]
@@ -344,11 +387,6 @@ m$s <- factor(m$variable, levels = c(basale, phy, cetux))
 ggplot(data=m, aes(x=s, y=value, colour=id, group=id))+geom_point()+geom_line()+theme_bw()+
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), text=element_text(size=15))
 
-dfc <- sel[rownames(sel) %in% upc_s,]
-dfc$id <- rownames(dfc)
-m <- melt(dfc)
-m$s <- factor(m$s, levels = s)
 
-ggplot(data=m, aes(x=s, y=value, group=id, colour=id))+geom_point()+geom_line()+theme_bw()+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), text=element_text(size=15))+ylim(0, 0.045)
+
 
